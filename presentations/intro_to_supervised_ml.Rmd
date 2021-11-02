@@ -97,12 +97,17 @@ Machine learning comes in two varieties:
 ## Rule determination
 
 - Want to learn a rule $f: X \rightarrow y$
-- Function may be complex and is controlled by low-dimensional parameters: $f=f(\theta)$
+- Rule is a mathematical function controlled by low-dimensional parameters: $f=f(\theta)$
 - Have training data:
 
 $$(X_1, y_1), (X_2, y_2), ..., (X_n, y_n)$$
 
 Can we learn $f$ by optimising $\theta$ on training data?
+
+## Example rules
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/supervised_4.png")
+```
 
 ## What is  $\; f$?
 
@@ -111,19 +116,10 @@ Can we learn $f$ by optimising $\theta$ on training data?
 - Regression trees (random forests, boosted regression)
 - Non-linear combinations of elements, stacked into multiple layers (deep learning)
 
-## How to learn  $\; f$?
-
-Define a cost of mismatch between $y_{i}^{\text{pred}}=f(X_i|\theta)$ and $y_{i}^\text{actual}$:
-
-\begin{equation}
-  C(f(X_i|\theta), \;y_{i}^\text{actual}) \geq 0.
-\end{equation}
-
-For cat / dog example, we could do something like:
-    - $C(1, 0) = C(0, 1) = 1$
-    - $C(0, 0) = C(1, 1) = 0$
-
-Then choose $\theta$ to minimise costs.
+## How to learn optimal parameters?
+```{r, echo = FALSE, out.width = "1000px",fig.align="center"}
+  knitr::include_graphics("figures/supervised_5.png")
+```
 
 ## Unsupervised learning
   
