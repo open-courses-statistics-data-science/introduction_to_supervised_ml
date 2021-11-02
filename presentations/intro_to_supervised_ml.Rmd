@@ -159,72 +159,200 @@ Can we learn $f$ by optimising $\theta$ on training data?
 
 # Linear regression
 
-## Example data
+## Example house price versus size data
 
-```{r, echo = FALSE, out.width = "1000px",fig.align="center"}
-  knitr::include_graphics("figures/supervised-regression-1.png")
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-1.png")
 ```
 
-## Non-probabilistic model
+## Example model: house price and size
 
 \begin{equation}
-y_i = \alpha + \beta x_i + \epsilon_i
+H_i = a + b S_i + \epsilon_i
 \end{equation}
 
-where $\epsilon_i$ is an error term. Define mean-squared loss:
-
-\begin{equation}
-L = \frac{1}{K} \sum_{i=1}^{K} (y_i - (\alpha + \beta x_i))^2
-\end{equation}
+where $H_i$ is the house price; $S_i$ is the size in square feet; and $\epsilon_i$ is an error term.
 
 
 ## What does this model look like?
 
-```{r, echo = FALSE, out.width = "1000px",fig.align="center"}
-  knitr::include_graphics("figures/supervised-regression-3.png")
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-2a.png")
 ```
+
+## What are $\epsilon_i$?
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-2.png")
+```
+
+## Choice of loss function
+
+Choose a model to minimise the sum of squared errors, that is:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} \epsilon_i^2
+\end{equation}
+
+which is the same as choosing values of $a$ and $b$ to minimise:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} (H_i - (a + b S_i))^2
+\end{equation}
+
+## Least-squares regression line
+
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-3-lsonly.png")
+```
+
+## What about other loss functions?
+
+Least absolute deviation loss:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} |\epsilon_i|
+\end{equation}
+
+Quartic power loss:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} \epsilon_i^4
+\end{equation}
+
+## Other regression lines
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-3.png")
+```
+
+## How do we estimate parameters?
+
+Suppose we want to minimise a least-squares loss function:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} (H_i - (a + b S_i))^2
+\end{equation}
+
+Choose $a$ and $b$ to minimise this loss $\implies$ differentiate!
 
 ## Learning parameters
 
-determine $\hat{\alpha}$ and $\hat{\beta}$ as those minimising $L$:
+determine $\hat{a}$ and $\hat{b}$ as those minimising $L$:
 
 \begin{align}
-\frac{\partial L}{\partial \alpha} &= -\frac{2}{K}\sum_{i=1}^{K} (y_i - (\alpha + \beta x_i)) = 0\\
-\frac{\partial L}{\partial \beta} &= -\frac{2}{K}\sum_{i=1}^{K} x_i (y_i - (\alpha + \beta x_i)) = 0
+\frac{\partial L}{\partial a} &= -\frac{2}{K}\sum_{i=1}^{K} (H_i - (a + b S_i)) = 0\\
+\frac{\partial L}{\partial b} &= -\frac{2}{K}\sum_{i=1}^{K} S_i (H_i - (a + b S_i)) = 0
 \end{align}
+
+## General solution of loss-minimisers
+
+For general loss functions, no solution exists. That is, usually equations like:
+
+\begin{align}
+-\frac{2}{K}\sum_{i=1}^{K} (H_i - (a + b S_i)) &= 0\\
+-\frac{2}{K}\sum_{i=1}^{K} S_i (H_i - (a + b S_i)) &= 0
+\end{align}
+
+have no solution. (Here, they actually do.)
 
 ## Gradient descent
 
-although a closed form expression exists for $\hat{\alpha}$ and $\hat{\beta}$, for more general models, one doesn't exist $\implies$ use gradient descent optimisation
+Instead of solving equations directly, we use gradient descent optimisation
 
-1. initialise parameters $\alpha=\alpha_0$, $\beta=\beta_0$
+1. initialise parameters $a=a_0$, $b=b_0$
 2. in each epoch update parameters:
 
 \begin{align}
-\alpha &= \alpha - \eta \frac{\partial L}{\partial \alpha}\\
-\beta &= \beta - \eta \frac{\partial L}{\partial \beta}
+a &= a - \eta \frac{\partial L}{\partial a}\\
+b &= b - \eta \frac{\partial L}{\partial b}
 \end{align}
 
-until $\alpha$ and $\beta$ no longer change. $\eta$ is the learning rate
+until $a$ and $b$ no longer change. $\eta$ is the learning rate
 
-## Linear regression with polynomial terms
+## Gradient descent: initial point
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-gradient-descent-1D-1.png")
+```
+
+## Gradient descent: first step
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-gradient-descent-1D-2.png")
+```
+
+## Gradient descent: next step
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-gradient-descent-1D-3.png")
+```
+
+## Gradient descent: convergence
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-gradient-descent-1D-4.png")
+```
+
+## Gradient descent in 2D
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/gradient-descent-2D.png")
+```
+
+## Making the model more complex
 
 \begin{equation}
-y_i = \theta_0 + \theta_1 x_i + \theta_2 x_i^2 + ... + \theta_p x_i^p + \epsilon_i
+H_i = a + b S_i + c S_i^2 + \epsilon_i
 \end{equation}
 
-model is better able to fit more complex datasets
+What does this model look like?
 
-## Is this a good fit?
+## Quadratic regression line
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-quadratic.png")
+```
 
-```{r, echo = FALSE, out.width = "1000px",fig.align="center"}
-  knitr::include_graphics("figures/supervised-regression-4.png")
+## How to estimate model parameters?
+
+Least-squares loss function:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} (H_i - (a + b S_i + c S_i^2))^2
+\end{equation}
+
+## Then use gradient descent
+
+\begin{align}
+a &= a - \eta \frac{\partial L}{\partial a}\\
+b &= b - \eta \frac{\partial L}{\partial b}\\
+c &= c - \eta \frac{\partial L}{\partial c}
+\end{align}
+
+## What about more complex models?
+
+\begin{equation}
+H_i = a + b S_i + c S_i^2 + d S_i^3 + ... \epsilon_i
+\end{equation}
+
+## More complex model
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-more-complex.png")
+```
+
+## Which model is best?
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-underoverfit.png")
+```
+
+## Original data
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-underoverfit-original-data.png")
+```
+
+## New data
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-underoverfit-newdata.png")
 ```
 
 ## What went wrong?
 
 - adding more parameters always reduces error on training set
 - but results in a model that generalises poorly
+- all else being equal simple models are better
 
 ## What is a good fitting model?
 
@@ -232,16 +360,29 @@ model is better able to fit more complex datasets
   knitr::include_graphics("figures/supervised-regression-5.png")
 ```
 
-## Solutions
+## How to get to a "fit" model?
 
-- need a separate validation set to test model predictions on
-- regularisation can help too, yielding a new objective function:
+Hold out a separate validation set to test model predictions on
 
-\begin{equation}
-L = C||\theta||_q + \frac{1}{K} \sum_{i=1}^{K} (y_i - f_p(x_i))^2
-\end{equation}
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-training-validation-set.png")
+```
 
-where $||.||_q$ denotes the $L_q$ norm: different choices can yield very different estimates
+## Using validation set to determine optimal model complexity
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-loss-validation.png")
+```
+
+## Will a trained model perform as well  in real life?
+No:
+
+- use of validation set means that we effectively overfit to it
+- thus create a separate testing set that is used only once to gauge performance
+
+## Create test set
+```{r, echo = FALSE, out.width = "800px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-dataset-partitions.png")
+```
 
 ## Linear regression summary
 
@@ -250,154 +391,6 @@ where $||.||_q$ denotes the $L_q$ norm: different choices can yield very differe
 - (gradient descent also used to train many other methods, like neural nets)
 - fitting regression with more complex functional forms can fit more complex data
 - but risks poor generalisation
-
-## Questions?
-
-# K-nearest neighbours: classification and regression
-
-## KNN
-
-- non-model-based learning algorithm
-- keeps training data in memory when making predictions, in contrast to most other methods
-- generally fast to run compared to many model-based approaches
-- straightforward premise for both classification and regression
-
-## KNN classification
-
-for new data point $\tilde x_i$:
-
-1. find $k$ nearest $x$ values from training data $(x_i, y_i)$ for $i=1,...,n$
-2. tally up the corresponding $y$ labels: $(y_1,..,y_k)$
-3. classify $\tilde x_i \rightarrow \text{mode}(y_1,..,y_k)$
-
-## KNN regression
-
-for new data point $\tilde x_i$:
-
-1. find $k$ nearest $x$ values from training data $(x_i, y_i)$ for $i=1,...,n$
-2. tally up the corresponding $y$ labels: $(y_1,..,y_k)$
-3. classify $\tilde x_i \rightarrow \text{mean}(y_1,..,y_k)$
-
-## Distance metrics
-
-many options possible. Common metrics include:
-
-- Euclidean: $s(x_1,x_2) = \sqrt{\sum_{i=1}^{D} (x_{1,i} - x_{2,i})^2}$
-- cosine similarity:
-
-\begin{equation}
-s(x_1,x_2) = \frac{x_1.x_2}{|x_1||x_2|}
-\end{equation}
-
-## Example data
-
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-library(RANN)
-library(tidyverse)
-n <- 200
-x <- rnorm(n, 0, 4)
-y <- sin(x) + rnorm(n, 0, 0.2)
-
-f_kk_regression <- function(x_tilde, x, y, k=10) {
-  fit <- nn2(x, c(x_tilde), k = k)
-  idxs <- fit$nn.idx[1, ]
-  return(mean(y[idxs]))
-}
-
-x_sim <- seq(-10, 10, 0.1)
-y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y))
-
-df <- tibble(x, y) %>% 
-  mutate(type="actual") %>% 
-  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
-
-p <- ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
-  geom_point()
-p
-```
-
-## KNN with k=10
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
- p + geom_line(data=df %>% filter(type=="regression"), colour="blue")
-```
-
-## KNN with k=1
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y, k = 2))
-
-df <- tibble(x, y) %>% 
-  mutate(type="actual") %>% 
-  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
-
-p + geom_line(data=df %>% filter(type=="regression"), colour="blue")
-```
-
-## KNN with k=50
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y, k = 50))
-
-df <- tibble(x, y) %>% 
-  mutate(type="actual") %>% 
-  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
-
-p + geom_line(data=df %>% filter(type=="regression"), colour="blue")
-```
-
-## Issue with KNN
-
-assume
-
-\begin{equation}
-\boldsymbol{x} \sim \mathcal{N}(0, I)
-\end{equation}
-
-where $I\in\mathbb{R}^d$. What does the distribution of Euclidean distances between points look like as $d$ changes?
-
-## Distance dists: neighbours not near in higher D
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-library(mvtnorm)
-rmvrnormND <- function(n, d){
-  return(rmvnorm(n, mean = rep(0, d)))
-}
-
-rcubeND <- function(n, d) {
-  m_vals <- runif(n * d)
-  return(matrix(m_vals, ncol = d))
-}
-
-f_dists <- function(n, d) {
-  x_2 <- rmvrnormND(n, d)
-  m_dist <- dist(x_2) %>% as.matrix()
-  return(tibble(dist=m_dist[upper.tri(m_dist, diag=FALSE)],
-                dimension=d))
-}
-
-n <- 200
-x_2 <- f_dists(n, 2)
-x_3 <- f_dists(n, 3)
-x_5 <- f_dists(n, 5)
-x_10 <- f_dists(n, 100)
-
-x_2 %>% 
-  bind_rows(x_3) %>% 
-  bind_rows(x_5) %>% 
-  bind_rows(x_10) %>% 
-  ggplot(aes(x=dist)) +
-  geom_histogram(bins=200) +
-  facet_wrap(~dimension) +
-  theme(strip.text = element_text(size=16),
-        axis.text = element_text(size=16),
-        axis.title = element_text(size=16)) +
-  xlab("Distance")
-```
-
-## KNN summary
-
-- KNN uses a simple device to do both classification and regression
-- in both cases taken the $k$ closest points to choose label or value
-- $k$ controls the smoothness of predictions
-- generally cheaper to run than other models
-- in higher dimensions, less useful
 
 ## Questions?
 
