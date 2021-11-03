@@ -15,7 +15,7 @@ output:
 
 - what is meant by machine learning?
 - two types of machine learning: supervised and unsupervised
-- linear and logistic regression
+- linear (AM) and logistic (PM) regression
 - how to train a ML model? gradient descent
 - what do over- and under-fitting mean?
 
@@ -155,8 +155,6 @@ Can we learn $f$ by optimising $\theta$ on training data?
 
 ## Questions?
 
-# Supervised ML
-
 # Linear regression
 
 ## Example house price versus size data
@@ -293,6 +291,16 @@ until $a$ and $b$ no longer change. $\eta$ is the learning rate
   knitr::include_graphics("figures/gradient-descent-2D.png")
 ```
 
+## Too high learning rate
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-learning-rate-high.png")
+```
+
+## Too low learning rate
+```{r, echo = FALSE, out.width = "600px",fig.align="center"}
+  knitr::include_graphics("figures/linear-regression-learning-rate-low.png")
+```
+
 ## Making the model more complex
 
 \begin{equation}
@@ -393,134 +401,6 @@ No:
 - but risks poor generalisation
 
 ## Questions?
-
-# Logistic regression
-
-## Logistic regression
-
-- confusingly, this is a classifier not a regression (in the ML sense)
-- models data as generated from a Bernoulli probability distribution
-- probability parameter of Bernoulli modelled by logistic function, hence the name
-- simple classifier but yields interpretable results and can be estimated in Bayesian framework
-
-## Model for binary data
-
-- suppose we have many labelled tuples of $(x_{i}, y_i)$
-- where $y_i$ is binary: here, we set $y_i=0$ for one category; $y_i=1$ for the other
-- since outcome is binary $\implies$ use an appropriate probability distribution:
-
-\begin{equation}
-y_i \sim \text{Bernoulli}(\theta_i)
-\end{equation}
-
-where $0\leq \theta_i \leq 1 = Pr(y_i=1)$
-
-## Bernoulli probability distribution
-
-is given by:
-
-\begin{equation}
-\text{Pr}(y_i|\theta_i) = \theta_i^{y_i} (1 - \theta_i)^{1 - y_i}
-\end{equation}
-
-so that $\text{Pr}(y_i=1) = \theta_i$ and $\text{Pr}(y_i=0) = 1 - \theta_i$
-
-## Logistic function
-
-In logistic regression, we use logistic function:
-
-\begin{equation}
-\theta_i = f_\beta(x_i) := \frac{1}{1 + \exp (-(\beta_0 + \beta_1 x_i))}
-\end{equation}
-
-```{r, echo = FALSE, out.width = "600px",fig.align="center"}
-  knitr::include_graphics("figures/logistic-regression.png")
-```
-
-## Likelihood and Bayesian estimation
-
-assume data are i.i.d., the likelihood is:
-
-\begin{equation}
-L=p(\boldsymbol{y}|\beta,\boldsymbol{x}) = \prod_{i=1}^{K} f_\beta(x_i)^{y_i} (1 - f_\beta(x_i))^{1 - y_i}.
-\end{equation}
-
-Can use gradient descent to find maximum likelihood estimates (or estimate using Bayesian inference).
-
-## Multivariate logistic regression
-
-straightforward to extend the model to incorporate multiple regressions:
-
-\begin{equation}
-f_\beta(x_i) := \frac{1}{1 + \exp (-(\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i}))}
-\end{equation}
-
-But how to interpret parameters of logistic regression?
-
-## Log-odds ratios
-
-another way of writing logistic function:
-
-\begin{align}
-f_\beta(x_i) &= \frac{1}{1 + \exp (-(\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i}))}\\
-&= \frac{\exp (\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i})}{1 + \exp (\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i})}
-\end{align}
-
-so that
-
-\begin{align}
-1 - f_\beta(x_i) = \frac{1}{1 + \exp (\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i})}
-\end{align}
-
-## Log-odds ratios
-
-taking the ratio:
-
-\begin{equation}
-\text{odds} = \frac{f_\beta(x_i)}{1-f_\beta(x_i)} = \exp (\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i})
-\end{equation}
-
-so that
-
-\begin{equation}
-\log\text{odds} =\beta_0 + \beta_1 x_{1,i} + ... + \beta_p x_{p,i}
-\end{equation}
-
-meaning (say) $\beta_1$ represents the change in log-odds for a one unit change in $x_{1}$
-
-## Logistic regression summary
-
-- logistic regression models are binary classifiers (in ML speak)
-- assumes Bernoulli distribution for outputs
-- logistic function used to relate changes in inputs to outputs
-- estimatable via Bayesian inference
-- multivariate logistic regression is a commonly used tool
-
-## Questions?
-
----
-
-
-
-
-# Summary
-
-## Summary
-
-- unsupervised and supervised learning aim to achieve different goals
-- dimensionality reduction is one variety of unsupervised learning
-- PCA is a linear projection method
-
-## Summary
-
-- clustering methods can reduce data down to a single dimension
-- k-means works for simple datasets
-
-## Summary
-- supervised ML uses labelled data to make predictions
-- linear regression is a form of regression model
-- model with more parameters are likely to overfit more
-- logistic regression is a binary classifier
 
 ## How to learn more?
 

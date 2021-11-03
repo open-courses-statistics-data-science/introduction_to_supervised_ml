@@ -1,0 +1,60 @@
+---
+title: "Linear regression"
+output: html_notebook
+---
+
+In this exercise, we are going to investigate linear regression: how to formulate the model, how to fit these models to data using gradient descent and we'll also start to investigate overfitting.
+
+1. Suppose a linear regression model of the form:
+
+\begin{equation}
+y_i \stackrel{i.i.d.}{\sim} \mathcal{N}(\alpha + \beta x_i, \sigma)
+\end{equation}
+
+and assume you have access to $(y_i,x_i)_{i=1}^{K}$. Show that the maximum likelihood estimators of the parameters are the same as those minimising the mean squared loss function:
+
+\begin{equation}
+L = \frac{1}{K} \sum_{i=1}^{K} (y_i - (\alpha + \beta x_i))^2
+\end{equation}
+
+2. Generate simulated regression data via:
+
+\begin{equation}
+y_i \stackrel{i.i.d.}{\sim} \mathcal{N}(\alpha + \beta x_i, \sigma)
+\end{equation}
+
+where $\alpha=1$, $\beta=1$, $\sigma=1$ and $x_i \stackrel{i.i.d.}{\sim}\mathcal{N}(0, 4)$ for $i =1,...,100$.
+
+3. Create a function which implements one epoch of gradient descent and updates estimates of both $\alpha$ and $\beta$
+
+4. Update parameters across many epochs and visualise their parameter estimates during training
+
+5. Draw the loss surface and use it to visualise the path of parameter estimates during training
+
+6. How does choice of $\eta$ affect the rate of training?
+
+7. Why does a high value of $\eta$ cause issues for training?
+
+8. For a reasonable value of $\eta$, visualise the mean squared loss over time
+
+9. Overlay your estimated regression line on the data
+
+10. Generate similar data except with $\beta=0.02$ and $x\sim\mathcal{N}(0, 400)$. How is training impacted for this model? 
+
+11. Standardise both the $y$ and $x$ variables and return training. How is the rate of convergence now?
+
+12. Generate regression data via:
+
+\begin{equation}
+y_i \stackrel{i.i.d.}{\sim} \mathcal{N}(\alpha + \beta x_i, \sigma)
+\end{equation}
+
+where $\alpha=1$, $\beta=1$, $\sigma=5$ and $x_i \stackrel{i.i.d.}{\sim}\mathcal{N}(0, 4)$ for $i =1,...,30$.
+
+Use gradient descent to obtain parameter estimates for a quadratic regression and graph the fitted line versus the data.
+
+13. Fit the same data as generated in the previous question using linear regression. Compare the fit of the quadratic and linear models on new data generated from the same data generating process except:
+
+$x_i \stackrel{i.i.d.}{\sim}\mathcal{N}(5, 4)$ for $i =1,...,30$
+
+Which has a better root mean squared accuracy on the new data? Why?

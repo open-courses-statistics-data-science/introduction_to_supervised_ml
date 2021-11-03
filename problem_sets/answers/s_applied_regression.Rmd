@@ -1,0 +1,245 @@
+---
+title: "House price prediction"
+output: html_notebook
+---
+
+In this exercise, we are going to apply a regression modelling technique to house price prediction using a subset of the [California house price dataset](https://www.kaggle.com/camnugent/california-housing-prices). Our dataset contains 200 observations for housing blocks in California obtained from the 1990 census. The dataset contains columns:
+
+1. `longitude`: A measure of how far west a house is; a higher value is farther west
+
+2. `latitude`: A measure of how far north a house is; a higher value is farther north
+
+3. `housing_median_age`: Median age of a house within a block; a lower number is a newer building
+
+4. `total_rooms`: Total number of rooms within a block
+
+5. `total_bedrooms`: Total number of bedrooms within a block
+
+6. `population`: Total number of people residing within a block
+
+7. `households`: Total number of households, a group of people residing within a home unit, for a block
+
+8. `median_income`: Median income for households within a block of houses (measured in tens of thousands of US Dollars)
+
+9. `median_house_value`: Median house value for households within a block (measured in US Dollars)
+
+10. `ocean_proximity`: Location of the house w.r.t ocean/sea
+
+In this example, we are going to create a regression model to predict `median_house_value` using only `median_income`.
+
+Load the file `housing_short.csv` and examine the first few rows.
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(reshape2)
+
+df <- read.csv("../data/housing_short.csv")
+df[1:10, ]
+```
+
+Plot median income vs median house value. What does this plot indicate about the relationship between these two variables?
+```{r}
+ggplot(df, aes(x=median_income, y=median_house_value)) +
+  geom_point() +
+  geom_smooth(method="lm", se=F, colour="orange")
+```
+They look positively associated.
+
+Split the data into a training set comprising the first 140 rows of the dataset, a validation set comprising rows 141-180 and a testing set comprising rows 180-200.
+```{r}
+training <- df[1:140, ]
+validation <- df[141:180, ]
+testing <- df[181:200, ]
+```
+
+Create a linear regression model to predict median house value from median income using the training set.
+
+In R, this can be done with:
+```{r}
+lm(median_house_value~median_income, data=training)
+```
+
+
+In Python, this can be done with:
+
+```{python}
+from sklearn import linear_model
+reg = linear_model.LinearRegression()
+# assuming that training set is a pandas dataframe
+X = training["median_income"]
+y = training["median_house_value"]
+X = X.iloc[:, ].values.reshape(-1, 1)
+y = y.iloc[:, ].values.reshape(-1, 1)
+reg.fit(X, y)
+```
+
+
+
+```{r}
+model <- lm(median_house_value~median_income, data=training)
+```
+
+What does your model predict is the average increase in median house value associated with a \$10,000 increase in median income?
+```{r}
+summary(model)
+```
+
+For every \$10,000 increase, there is an associated increase in house value of \$38,948.
+
+Overlay the linear regression model on top of the training data. What does this suggest about the appropriateness of the model?
+```{r}
+# simple (but sorta cheating) way: use ggplot to obtain linear model fit and loess fit to compare
+ggplot(training, aes(x=median_income, y=median_house_value)) +
+  geom_point() +
+  geom_smooth(method="lm", se=F, colour="orange") +
+  geom_smooth(se=F, colour="blue", span=1.25)
+
+# less cheaty way: predict house price using model across a vector
+income <- seq(0, 12, length.out = 100)
+sample_df <- tibble(median_income=income)
+price <- predict(model, sample_df)
+plot(training$median_income, training$median_house_value)
+lines(income, price, col="blue")
+```
+
+The fit is ok but looks like a model incorporating a non-linear association of income on house price would be more appropriate.
+
+Now fit a linear regression model to the training set of the form:
+
+\begin{equation}
+P_i = a + b_1 I_i + b_2 I_i^2
+\end{equation}
+
+where $P_i$ is median house price in block $i$ and $I_i$ is median house income of the same block. Note, that this can be done in R using:
+
+`lm(median_house_value~median_income + I(median_income^2), data=training)`
+
+```{r}
+model2 <- lm(median_house_value~median_income + I(median_income^2), data=training)
+summary(model2)
+```
+
+Again plot the model fit for this model versus data. How does the fit compare with the linear model?
+```{r}
+# cheating
+ggplot(training, aes(x=median_income, y=median_house_value)) +
+  geom_point() +
+  geom_smooth(method="lm",
+              formula=y~x+I(x^2),
+              se=F, colour="blue") +
+  geom_smooth(method="lm", se=F,
+              colour="orange", span=1.25)
+
+# less cheaty way: predict house price using model across a vector
+income <- seq(0, 12, length.out = 100)
+sample_df <- tibble(median_income=income)
+price2 <- predict(model2, sample_df)
+plot(training$median_income, training$median_house_value)
+lines(income, price2, col="blue")
+lines(income, price, col="orange")
+```
+
+The fit of the quadratic model appears better to the training data.
+
+Now fit a model using up to 5th order polynomial terms.
+```{r}
+model5 <- lm(median_house_value~median_income + I(median_income^2) + I(median_income^3) + I(median_income^4) +I(median_income^5), data=training)
+summary(model5)
+```
+
+Overlay all three models on top of the training data.
+```{r}
+# cheating
+ggplot(training, aes(x=median_income, y=median_house_value)) +
+  geom_point() +
+  geom_smooth(method="lm",
+              formula=y~x+I(x^2),
+              se=F, colour="blue") +
+  geom_smooth(method="lm",
+              formula=y~x+I(x^2)+I(x^3)+I(x^4)+I(x^5),
+              se=F, colour="grey") +
+  geom_smooth(method="lm", se=F,
+              colour="orange", span=1.25)
+
+# less cheaty way: predict house price using model across a vector
+income <- seq(0, 12, length.out = 100)
+sample_df <- tibble(median_income=income)
+price5 <- predict(model5, sample_df)
+plot(training$median_income, training$median_house_value)
+lines(income, price2, col="blue")
+lines(income, price, col="orange")
+lines(income, price5, col="grey")
+```
+
+Now we are going to prepare the fit of all models on the validation set. To do so, first use each of your fitted models to predict house prices in this set.
+```{r}
+price1 <- predict(model, validation)
+price2 <- predict(model2, validation)
+price5 <- predict(model5, validation)
+```
+
+Calculate the errors in prediction for each of the three models. Draw histograms of these for each of the models.
+```{r}
+error1 <- validation$median_house_value - price1
+error2 <- validation$median_house_value - price2
+error5 <- validation$median_house_value - price5
+
+tibble(model1=error1,
+       model2=error2,
+       model5=error5) %>% 
+  melt() %>%  
+  ggplot(aes(x=value, fill=variable)) +
+  geom_histogram(position="identity", alpha=0.6)
+```
+
+Calculate the root mean squared error for each of the models:
+
+\begin{equation}
+\text{RMSE} = \sqrt{1/N\sum_{i=1}^N \text{error}_i^2}
+\end{equation}
+
+Which model has the best performance and why?
+```{r}
+rmse <- function(errors) {
+  sse <- errors^2
+  sqrt(mean(sse))
+}
+
+RMSE1 <- rmse(error1)
+RMSE2 <- rmse(error2)
+RMSE5 <- rmse(error5)
+
+print(paste0("Linear model: ", RMSE1))
+print(paste0("Quadratic model: ", RMSE2))
+print(paste0("5th power model: ", RMSE5))
+```
+
+The quadratic model! The linear model underfitted the data; the 5th power one overfitted it.
+
+Calculate the RMSE of prediction using the quadratic model on the testing set.
+```{r}
+price_test <- predict(model2, testing)
+error_test <- testing$median_house_value - price_test
+
+print(paste0("5th power model: ", rmse(error_test)))
+```
+
+Why is the performance so much worse on the testing set?
+
+Plot house price versus income for each of the three datasets
+```{r}
+df_combined <- training %>% 
+  mutate(type="training") %>% 
+  bind_rows(validation %>%
+              mutate(type="validation")) %>% 
+  bind_rows(testing %>%
+              mutate(type="testing"))
+
+df_combined %>% 
+  ggplot(aes(x=median_income,
+             y=median_house_value,
+             colour=type)) +
+  geom_point()
+```
+
+Because the testing set doesn't look much like the training and validation sets! Really important that all three sets look similar if we are to build generalisable models.
