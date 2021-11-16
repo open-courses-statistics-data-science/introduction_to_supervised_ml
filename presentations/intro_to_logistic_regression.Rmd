@@ -35,7 +35,7 @@ Denote:
 - $y_i=0$ indicates cancer-free
 - $y_i=1$ indicates presence of lung cancer
 
-Two outcomes is like flipping a coin!
+Two outcomes: so is like flipping a coin!
 
 ## How to model these data?
 ```{r, echo = FALSE, out.width = "1000px",fig.align="center"}
@@ -129,7 +129,7 @@ y_i \sim \text{Bernoulli}(\theta_i)
 
 ## How to estimate $\beta_0$ and $\beta_1$?
 
-Data for one individual $(x_i,y_i)$ have probability:
+Data for one individual $(x_i,y_i)$ has probability:
 
 $$\text{Pr}(y_i=y) = f_\beta(x_i)^y(1-f_\beta(x_i))^{1-y} $$
 
@@ -207,7 +207,7 @@ so here $\exp 2\approx 7.4$ gives the change to the odds for a one unit change i
 
 ## Odds ratios
 
-- if $\beta_1 > 0$, the odds ratio $>1$, which indicates that a changes to a variable increase the probability of the $y_i=1$ event occuring.
+- if $\beta_1 > 0$, the odds ratio $>1$, which indicates that changes to a variable increase the probability of the $y_i=1$ event occuring.
 - vice versa for $\beta_1 < 0$.
 
 ## Log odds interpretation
