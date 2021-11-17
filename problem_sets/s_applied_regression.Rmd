@@ -28,46 +28,20 @@ In this exercise, we are going to apply a regression modelling technique to hous
 In this example, we are going to create a regression model to predict `median_house_value` using only `median_income`.
 
 Load the file `housing_short.csv` and examine the first few rows.
-```{r}
-rm(list=ls())
-
-df <- read.csv("data/housing_short.csv")
-df[1:5, ]
-```
 
 Plot median income vs median house value. What does this plot indicate about the relationship between these two variables?
-```{r}
-ggplot(df, aes(x=median_income, y=median_house_value)) +
-  geom_point() +
-  geom_smooth(method="lm", colour="orange", se=F)
-```
 
 Split the data into a training set comprising the first 140 rows of the dataset, a validation set comprising rows 141-180 and a testing set comprising rows 180-200.
-```{r}
-training <- df[1:140, ]
-validation <- df[141:180, ]
-testing <- df[181:200, ]
-```
 
-Create a linear regression model to predict median house value from median income using the training set. We provide code for both R and Python.
+Create a linear regression model to predict median house value from median income using the training set. We provide code for R.
 
 ```{r}
 model <- lm(median_house_value~median_income, data=training)
 ```
 
 What does your model predict is the average increase in median house value associated with a \$10,000 increase in median income?
-```{r}
-summary(model)
-```
-
 
 Overlay the linear regression model on top of the training data. What does this suggest about the appropriateness of the model?
-```{r}
-ggplot(df, aes(x=median_income, y=median_house_value)) +
-  geom_point() +
-  geom_smooth(method="lm", colour="orange", se=F)
-```
-
 
 Now fit a linear regression model to the training set of the form:
 
@@ -83,53 +57,14 @@ summary(model2)
 ```
 
 Again plot the model fit for this model versus data. How does the fit compare with the linear model?
-```{r}
-ggplot(df, aes(x=median_income, y=median_house_value)) +
-  geom_point() +
-  geom_smooth(method="lm", colour="orange", se=F) +
-  geom_smooth(method="lm", colour="blue", se=F,
-              formula=y~x+I(x^2))
-```
 
 Now fit a model using up to 5th order polynomial terms.
-```{r}
-model5 <- lm(median_house_value~median_income + I(median_income^2) + I(median_income^3)+ I(median_income^4)+ I(median_income^5), data=training)
-summary(model5)
-```
-
 
 Overlay all three models on top of the training data.
-```{r}
-ggplot(df, aes(x=median_income, y=median_house_value)) +
-  geom_point() +
-  geom_smooth(method="lm", colour="orange", se=F) +
-  geom_smooth(method="lm", colour="blue", se=F,
-              formula=y~x+I(x^2)) +
-  geom_smooth(method="lm", colour="grey", se=F,
-              formula=y~x+I(x^2) + I(x^3) + I(x^4) + I(x^5))
-```
-
 
 Now we are going to compare the fit of all models on the validation set. To do so, first use each of your fitted models to predict house prices in this set.
-```{r}
-price <- predict(model, validation)
-price2 <- predict(model2, validation)
-price5 <- predict(model5, validation)
-```
 
 Calculate the errors in prediction for each of the three models. Draw histograms of these for each of the models.
-```{r}
-error <- validation$median_house_value - price
-error2 <- validation$median_house_value - price2
-error5 <- validation$median_house_value - price5
-
-library(reshape2)
-tibble(model_1=error, model_2=error2, model_5=error5) %>% 
-  melt() %>% 
-  ggplot(aes(x=value, fill=variable)) +
-  geom_histogram(position="identity", alpha=0.5, bins=10)
-```
-
 
 Calculate the root mean squared error for each of the models:
 
@@ -138,26 +73,10 @@ Calculate the root mean squared error for each of the models:
 \end{equation}
 
 Which model has the best performance and why?
-```{r}
-rmse <- function(errors) {
-  sse <- errors^2
-  sqrt(mean(sse))
-}
-print(paste0("linear model: ", rmse(error)))
-print(paste0("quadratic model: ", rmse(error2)))
-print(paste0("5th order model: ", rmse(error5)))
-```
-
 
 Calculate the RMSE of prediction using the quadratic model on the testing set.
-```{r}
-price2 <- predict(model2, testing)
-error2_testing <- validation$median_house_value - price2
-print(paste0("quadratic model on testing: ", rmse(error2_testing)))
-```
+
 
 Why is the performance so much worse on the testing set?
-```{r}
 
-```
 
