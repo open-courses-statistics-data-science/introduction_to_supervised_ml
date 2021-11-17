@@ -1,6 +1,8 @@
 ---
 title: "Linear regression"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 In this exercise, we are going to investigate linear regression: how to formulate the model, how to fit these models to data using gradient descent and we'll also start to investigate overfitting.
