@@ -1,5 +1,5 @@
 ---
-title: "Introduction to supervised machine learning"
+title: "Introduction to logistic regression"
 author: | 
   | Ben Lambert
 output:
