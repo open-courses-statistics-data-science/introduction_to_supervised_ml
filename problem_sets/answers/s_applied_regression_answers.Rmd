@@ -221,7 +221,7 @@ Calculate the RMSE of prediction using the quadratic model on the testing set.
 price_test <- predict(model2, testing)
 error_test <- testing$median_house_value - price_test
 
-print(paste0("5th power model: ", rmse(error_test)))
+print(paste0("Quadratic model: ", rmse(error_test)))
 ```
 
 Why is the performance so much worse on the testing set?
