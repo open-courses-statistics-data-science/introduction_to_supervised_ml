@@ -7,7 +7,7 @@ This course provides a short introduction to supervised machine learning. It cov
 
 The course consists of two lectures and three problem sets.
 
-## Lectures
+## Lectures
 
 The lectures are:
 
