@@ -22,7 +22,8 @@ The lectures are:
   * How to train logistic regression models
   * What do the results from logistic regression models mean?
 
-## Problem sets
+
+## Problem sets
 
 There is an introductory problem set which is recommended for all newbies to machine learning:
 - [using linear regression to predict house prices](https://htmlpreview.github.io/?https://github.com/ben18785/introduction_to_supervised_ml/blob/main/problem_sets/s_applied_regression.nb.html). Here participants apply linear regression modelling and investigate how the model complexity affects its performance on training, validation and testing sets. The dataset used in the problem set is [here](./problem_sets/data/housing_short.csv). The answers to this exercise are in both [R](https://htmlpreview.github.io/?https://github.com/ben18785/introduction_to_supervised_ml/blob/main/problem_sets/answers/s_applied_regression_answers.nb.html) and [Python](https://github.com/ben18785/introduction_to_supervised_ml/blob/main/problem_sets/answers/s_applied_regression.ipynb).
