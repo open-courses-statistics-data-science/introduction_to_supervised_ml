@@ -7,7 +7,9 @@ This course provides a short introduction to supervised machine learning. It cov
 
 The course consists of two lectures and three problem sets.
 
+
 ## Lectures
+
 
 The lectures are:
 
@@ -16,12 +18,10 @@ The lectures are:
   * Linear regression
   * How supervised machine learning models are trained?
   * Over- and under-fit models and validation / testing sets
-* PM: [An introduction to logistic regression](https://htmlpreview.github.io/?https://github.com/ben18785/introduction_to_supervised_ml/blob/main/presentations/intro_to_logistic_regression.html). This covers:
-  * What is logistic regression?
-  * How we can think about logistic regression like coin flipping
-  * How to train logistic regression models
-  * What do the results from logistic regression models mean?
-
+* PM: [An introduction to logistic regression, kNN and decision tree methods](https://htmlpreview.github.io/?https://github.com/ben18785/introduction_to_supervised_ml/blob/main/presentations/intro_to_logistic_knn_trees.html). This covers:
+  * What is logistic regression and how we can train these models
+  * What are k-nearest neighbour methods and how do they work
+  * What are decision tree methods?
 
 ## Problem sets
 
