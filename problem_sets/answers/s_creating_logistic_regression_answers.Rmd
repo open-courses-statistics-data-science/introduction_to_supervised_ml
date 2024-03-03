@@ -161,4 +161,3 @@ print(paste0("1st class survival prob: ", round(survival_1, 2)))
 
 print(paste0("Change in survival prob: ", round(survival_1 - survival_2, 2)))
 ```
-

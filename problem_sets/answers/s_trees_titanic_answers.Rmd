@@ -1,0 +1,296 @@
+---
+title: "Building your own decision tree classifier: titanic data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Load the Titanic dataset.
+```{r}
+library(tidyverse)
+df <- read.csv("data/titanic.csv")
+```
+
+2. In this question, we are going to start to build a regression tree classifier, where we try to determine the factors that influence whether a passenger survived.
+
+Specifically, we are going to investigate how the passenger class, age and sex influenced survival.
+
+For passenger class, we are going to use dummy variables to represent the three possible states: binary variables which take on the value 0 if not true and 1 if true.
+
+Create dummy variables for classes 1 and 2. This implicitly means that the 3rd class will be the base case that we compare to.
+
+```{r}
+df <- df %>% 
+  mutate(class_1=if_else(Pclass==1, 1, 0),
+         class_2=if_else(Pclass==2, 1, 0))
+```
+
+3. Create a dummy variable equal to 1 if the passenger was female.
+```{r}
+df <- df %>% 
+  mutate(female=if_else(Sex=="female", 1, 0))
+```
+
+4. For age, we are going to split the data up into three segments: (i) those aged 16 or less; (ii) those between 16 and 60; (iii) and those over 60. Create dummy variables for categories (i) and (iii).
+```{r}
+df  <- df %>% 
+  mutate(age_children=if_else(Age <= 16, 1, 0),
+         age_old=if_else(Age > 60, 1, 0))
+```
+
+5. Remove all of the columns apart from the survival column and the sets of dummy variables you have created.
+```{r}
+df <- df %>% 
+  select(Survived, class_1, class_2, female, age_children, age_old) %>% 
+  rename(survived=Survived)
+```
+
+6. Remove any data points with missing observations.
+```{r}
+df <- df %>% 
+  drop_na()
+```
+
+7. The entropy of a binary outcome variable, $X_i$, is given by:
+
+$$ H = p \log p + (1 - p) \log (1 - p),$$
+
+where $p=\mathbb{P}(X=1)$.
+
+Write a function which can calculate the entropy of a binary vector. Use it to calculate the entropy of the survival variable in the full dataset.
+
+```{r}
+entropy <- function(v_binary) {
+  p <- mean(v_binary==1)
+  
+  if(p > 0 & p < 1)
+    - p * log(p) - (1 - p) * log(1 - p)
+  else
+    0
+}
+
+## full dataset entropy
+total_entropy <- entropy(df$survived)
+total_entropy
+```
+
+8. We now start to build a decision tree classifier. To do so, we are going to choose one of the five variables to split on based on the reduction in entropy this provides. To do so, we calculate the conditional entropy, $H(X|V)$, where $V$ is a particular variable we have split on. At each step, we will choose the variable to split on so that it results in the greatest reduction in entropy.
+
+The conditional entropy for a binary variable, $V$, is given by:
+
+$$H(X|V) = S(V=1)/S(\phi) \times H(S(V=1)) + S(V=0)/S(\phi) \times H(S(V=0)),$$
+
+where $S(V=v)$ is the set of members of the random variable $X$ corresponding to $V=v$. For example, consider:
+
+```{r}
+df_example <- tribble(
+  ~X, ~V,
+  0, 1,
+  1, 1,
+  0, 1,
+  1, 0,
+  0, 0,
+  1, 1
+)
+
+df_example
+```
+then $S(V=1)$ is the $X$ column from the subsetted data frame:
+
+```{r}
+df_example %>% 
+  filter(V==1)
+```
+
+
+Write a function to calculate the conditional entropy of splitting on a particular variable for your dataset.
+```{r}
+conditional_entropy <- function(variable_name, df) {
+  
+  df_subset_entropies <- df %>% 
+    group_by_at({{variable_name}}) %>% 
+    summarise(
+      H=entropy(survived),
+      n=n()
+    )
+  
+  ps <- df_subset_entropies$n / sum(df_subset_entropies$n)
+  df_subset_entropies <- df_subset_entropies %>% 
+    mutate(p=ps)
+  
+  sum(df_subset_entropies$p * df_subset_entropies$H)
+}
+```
+
+9. Use the function you created in the previous question to determine the reduction in entropy from splitting on each of the five possible variables. Which column yields the greatest reduction in entropy?
+
+```{r}
+vars <- colnames(df)[2:length(colnames(df))]
+
+Hs <- vector(length = length(vars))
+for(i in seq_along(Hs))
+  Hs[i] <- conditional_entropy(vars[i], df) - total_entropy
+
+df_entropy_reduction <- tibble(variable=vars, entropy_reduction=Hs)
+df_entropy_reduction
+```
+
+Splitting on the female variable results in the greatest reduction in entropy.
+
+10. Explain intuitively why splitting on that variable resulted in the greatest reduction in entropy?
+
+To do this, consider the balance between the survival classes after splitting on each of the variables.
+```{r}
+df %>% 
+  group_by(class_1) %>% 
+  summarise(
+    n=n(),
+    p=mean(survived)
+  )
+
+df %>% 
+  group_by(class_2) %>% 
+  summarise(
+    n=n(),
+    p=mean(survived)
+  )
+
+df %>% 
+  group_by(female) %>% 
+  summarise(
+    n=n(),
+    p=mean(survived)
+  )
+
+df %>% 
+  group_by(age_children) %>% 
+  summarise(
+    n=n(),
+    p=mean(survived)
+  )
+
+df %>% 
+  group_by(age_old) %>% 
+  summarise(
+    n=n(),
+    p=mean(survived)
+  )
+```
+
+Splitting on `female` results in two large groups which are fairly homogeneous in terms of survival vs the other splits.
+
+
+11. Create a decision tree classifier using the variable you have identified. The classifier outputs a classification probability:
+
+$$\mathbb{P}(X=1|V=v) = \frac{1}{S(V=v)} \sum_{i\in S(V=v)} X_i,$$
+
+where $X$ denotes the survival variable and $V$ denotes the variable you split on. The above just means your outputted probability of survival is the corresponding fraction surviving in the subset corresponding to that particular value of the variable $V$.
+
+```{r}
+depth_one_classifier <- function(female_val, df) {
+  
+  df %>% 
+    group_by(female) %>% 
+    summarise(
+      p=mean(survived)
+    ) %>% 
+    filter(female==female_val) %>% 
+    pull(p)
+}
+
+# test out classification probs
+
+## male survival prob
+depth_one_classifier(0, df)
+
+## female survival prob
+depth_one_classifier(1, df)
+```
+
+
+11. Create a decision tree classifier with depth 2 (i.e. it splits on two variables), where in each step it chooses which variable to split on based on the greatest reduction in entropy.
+
+After splitting on `female`, we are left with two dataframes:
+```{r}
+df_f <- df %>% 
+  filter(female==1)
+df_m <- df %>% 
+  filter(female==0)
+```
+
+Which have associated with them the following entropies for the survival variable.
+```{r}
+## female
+total_entropy_f <- entropy(df_f$survived)
+total_entropy_f
+
+## male
+total_entropy_m <- entropy(df_m$survived)
+total_entropy_m
+```
+
+We now consider splitting on another of the remaining variables.
+
+```{r}
+vars <- colnames(df)[2:length(colnames(df))]
+vars <- vars[vars != "female"]
+
+# females
+Hs <- vector(length = length(vars))
+for(i in seq_along(Hs))
+  Hs[i] <- conditional_entropy(vars[i], df_f) - total_entropy_f
+
+df_entropy_reduction_f <- tibble(variable=vars, entropy_reduction=Hs, sex="female")
+
+# males
+Hs <- vector(length = length(vars))
+for(i in seq_along(Hs))
+  Hs[i] <- conditional_entropy(vars[i], df_m) - total_entropy_m
+
+df_entropy_reduction_m <- tibble(variable=vars, entropy_reduction=Hs, sex="male")
+
+# aggregate over both sexes
+df_both_sexes <- df_entropy_reduction_f %>% 
+  bind_rows(df_entropy_reduction_m)
+
+
+df_both_sexes %>% 
+  group_by(variable) %>% 
+  summarise(entropy_reduction=sum(entropy_reduction))
+```
+
+So, we next split on the `class_1` variable.
+
+```{r}
+depth_two_classifier <- function(female_val, class_1_val, df) {
+  
+  df %>% 
+    group_by(female, class_1) %>% 
+    summarise(
+      p=mean(survived),
+      .groups="drop"
+    ) %>% 
+    filter(female==female_val,
+           class_1==class_1_val) %>% 
+    pull(p)
+}
+```
+
+12. Use your classifier to output the probabilities of survival for each (type of) individual in your dataset. Which groups have the highest survival probabilities and the lowest survival probabilities?
+
+```{r}
+# female and 1st class
+depth_two_classifier(female_val=1, class_1_val=1, df)
+
+# female and other class
+depth_two_classifier(female_val=1, class_1_val=0, df)
+
+# male and 1st class
+depth_two_classifier(female_val=0, class_1_val=1, df)
+
+# male and other class
+depth_two_classifier(female_val=0, class_1_val=0, df)
+```
+Oh dear; being male and from another class results in a low chance of survival whereas female and 1st class is a high chance.
