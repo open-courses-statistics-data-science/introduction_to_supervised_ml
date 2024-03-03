@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 1. Load the Titanic dataset.
 ```{r}
 library(tidyverse)
-df <- read.csv("data/titanic.csv")
+df <- read.csv("../data/titanic.csv")
 ```
 
 2. In this question, we are going to start to build a regression tree classifier, where we try to determine the factors that influence whether a passenger survived.
