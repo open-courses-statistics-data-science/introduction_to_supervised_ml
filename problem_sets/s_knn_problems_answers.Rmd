@@ -1,0 +1,96 @@
+---
+title: "KNN"
+output: html_document
+date: "2024-03-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# KNN regression
+
+1. Generate $n=200$ paired $(x_i, y_i)$ data points by sampling:
+
+\begin{equation}
+x_i \sim \mathcal{N}(0, 4)
+\end{equation}
+
+and then:
+
+\begin{equation}
+y_i \sim \mathcal{N}(sin(x_i), 0.2)
+\end{equation}
+
+```{r}
+library(RANN)
+library(tidyverse)
+n <- 200
+x <- rnorm(n, 0, 4)
+y <- sin(x) + rnorm(n, 0, 0.2)
+
+df <- tibble(x, y) %>% 
+  mutate(type="actual")
+
+ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
+  geom_point()
+```
+
+2. Create a function which returns the KNNs for a given $x$ value (and $k$)
+```{r}
+# use RANN library (which implements KD trees)
+x_tilde <- -2.5
+fit <- nn2(x, c(x_tilde), k = 10)
+idxs <- fit$nn.idx[1, ]
+
+# visualise nearest neighbours around a point
+tibble(x, y) %>% 
+  mutate(idx=seq_along(x)) %>% 
+  mutate(nn=idx%in%idxs) %>% 
+  ggplot(aes(x=x, y=y, colour=as.factor(nn))) +
+  geom_point()
+```
+
+3. Using your answer to the previous code, create a KNN regression estimator using Euclidean distance with various values of $k$ to predict $y$. How does $k$ influence the results?
+```{r}
+f_kk_regression <- function(x_tilde, x, y, k=10) {
+  fit <- nn2(x, c(x_tilde), k = k)
+  idxs <- fit$nn.idx[1, ]
+  return(mean(y[idxs]))
+}
+
+x_sim <- seq(-10, 10, 0.1)
+
+# k = 1
+y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y, k=10))
+
+df <- tibble(x, y) %>% 
+  mutate(type="actual") %>% 
+  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
+
+ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
+  geom_point() +
+  geom_line(data=df %>% filter(type=="regression"), colour="blue")
+
+# k = 1
+y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y, k=1))
+
+df <- tibble(x, y) %>% 
+  mutate(type="actual") %>% 
+  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
+
+ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
+  geom_point() +
+  geom_line(data=df %>% filter(type=="regression"), colour="blue")
+
+# k = 100
+y_sim <- map_dbl(x_sim, ~f_kk_regression(., x, y, k=100))
+
+df <- tibble(x, y) %>% 
+  mutate(type="actual") %>% 
+  bind_rows(tibble(x=x_sim, y=y_sim) %>% mutate(type="regression"))
+
+ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
+  geom_point() +
+  geom_line(data=df %>% filter(type=="regression"), colour="blue")
+```

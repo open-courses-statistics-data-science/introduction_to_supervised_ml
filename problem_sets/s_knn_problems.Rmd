@@ -1,0 +1,28 @@
+---
+title: "KNN"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# KNN regression
+
+1. Generate $n=200$ paired $(x_i, y_i)$ data points by sampling:
+
+\begin{equation}
+x_i \sim \mathcal{N}(0, 4)
+\end{equation}
+
+and then:
+
+\begin{equation}
+y_i \sim \mathcal{N}(sin(x_i), 0.2)
+\end{equation}
+
+
+2. Create a function which returns the KNNs for a given $x$ value (and $k$)
+
+
+3. Using your answer to the previous code, create a KNN regression estimator using Euclidean distance with various values of $k$ to predict $y$. How does $k$ influence the results?
