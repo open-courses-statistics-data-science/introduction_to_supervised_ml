@@ -28,7 +28,7 @@ Create dummy variables for classes 1 and 2. This implicitly means that the 3rd c
 
 7. The entropy of a binary outcome variable, $X_i$, is given by:
 
-$$ H = p \log p + (1 - p) \log (1 - p),$$
+$$ H = -p \log p - (1 - p) \log (1 - p),$$
 
 where $p=\mathbb{P}(X=1)$.
 

@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 x_i \sim \mathcal{N}(0, 4)
 \end{equation}
 
-and then:
+where $4$ is the standard deviation of the normal distribution and then:
 
 \begin{equation}
 y_i \sim \mathcal{N}(sin(x_i), 0.2)
