@@ -23,7 +23,6 @@ y_i \sim \mathcal{N}(sin(x_i), 0.2)
 \end{equation}
 
 ```{r}
-library(RANN)
 library(tidyverse)
 n <- 200
 x <- rnorm(n, 0, 4)
@@ -38,10 +37,19 @@ ggplot(df %>% filter(type=="actual"), aes(x=x, y=y)) +
 
 2. Create a function which returns the KNNs for a given $x$ value (and $k$)
 ```{r}
-# use RANN library (which implements KD trees)
+find_k_nearest_neighbors <- function(x_tilde, x_values, k) {
+  # Calculate the absolute differences between x and each value in x_values
+  differences <- abs(x_tilde - x_values)
+  
+  # Sort the indices of x_values based on the differences
+  sorted_indices <- order(differences)
+  
+  # Return the first k indices
+  sorted_indices[1:k]
+}
+
 x_tilde <- -2.5
-fit <- nn2(x, c(x_tilde), k = 10)
-idxs <- fit$nn.idx[1, ]
+idxs <- find_k_nearest_neighbors(x_tilde, x, k=20)
 
 # visualise nearest neighbours around a point
 tibble(x, y) %>% 
@@ -54,8 +62,7 @@ tibble(x, y) %>%
 3. Using your answer to the previous code, create a KNN regression estimator using Euclidean distance with various values of $k$ to predict $y$. How does $k$ influence the results?
 ```{r}
 f_kk_regression <- function(x_tilde, x, y, k=10) {
-  fit <- nn2(x, c(x_tilde), k = k)
-  idxs <- fit$nn.idx[1, ]
+  idxs <- find_k_nearest_neighbors(x_tilde, x, k)
   return(mean(y[idxs]))
 }
 
