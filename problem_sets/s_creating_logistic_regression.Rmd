@@ -1,6 +1,8 @@
 ---
-title: "Titanic: logistic regression"
-output: html_notebook
+title: 'Titanic: logistic regression'
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r}
@@ -37,7 +39,8 @@ where "logistic" is the function you created above. The function should takes as
 
 12. We are now going to try to estimate the parameters $\beta_0$ and $\beta_1$ by doing a grid search. We start by fixing $\beta_0=-1.14$ (this is the maximum likelihood value of the parameter). We are then going to do a grid search across all combinations of the following values of $\beta_1=(0, 1, 1.67, 2, 2.5)$ and $\beta_2=(-1, 0, 1, 2, 3)$. For each of the 25 combinations of both sets of parameters, calculate the likelihood. In doing so, find parameters that are close to the maximum likelihood values.
 
-13. Run the following code which does maximum likelihood estimation for you. Compare the estimates below with your ones above.
+13. Run the following code which does maximum likelihood estimation for you. Compare the estimates below with your ones above. `model <- glm(Survived~class_1+class_2, data=df, family="binomial")`
+`
 
 14. What do your estimates suggest are the odds ratios for survival relative to 3rd class passengers for being in 1st and 2nd classes respectively?
 
